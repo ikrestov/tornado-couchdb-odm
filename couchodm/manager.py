@@ -40,7 +40,8 @@ class CouchManager(Manager):
     @gen.engine
     def fetch_all(self, callback, **kwargs):
         res = yield gen.Task(self.db.view, None, '_all_docs', **kwargs)
-        callback(self._view_to_iterable(res))
+        iterator = (self.model_class(dict(_id=row['id'], _rev=row['value']['rev'])) for row in res['rows'])
+        callback(iterator)
 
     def _view_to_iterable(self, res):
         """
